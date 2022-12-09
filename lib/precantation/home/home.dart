@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reqress_api/api/services.dart';
@@ -26,12 +25,14 @@ class _HomeState extends State<Home> {
 
   List<Article>? articleData = [];
   bool isLoading = true;
+  String errorMessage = '';
   Future<void> getArticlesFromApi() async {
     MainApiModel? response = await ApiServices().fetchUser();
     if (response != null) {
       if (response.articles != null) {
         setState(() {
           articleData = response.articles ?? [];
+          errorMessage = response.message ?? 'hallo';
           isLoading = false;
         });
       } else {
@@ -42,13 +43,17 @@ class _HomeState extends State<Home> {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
+              backgroundColor: kMainThem,
               clipBehavior: Clip.antiAlias,
-              content: Text('Error ocurred'),
+              content: Text(
+                "error Message",
+                style: TextStyle(color: kBlack),
+              ),
             ),
           );
         } on TypeError catch (e) {
-          print("🧨");
-          // log(e.toString());
+          log("🧨");
+          log(e.toString());
         }
       }
     } else {
@@ -58,7 +63,8 @@ class _HomeState extends State<Home> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("No Internet"),
+          backgroundColor: kMainThem,
+          content: Text("Error Occurred"),
         ),
       );
     }
@@ -76,59 +82,62 @@ class _HomeState extends State<Home> {
             const AppBarWidget(),
             const SizedBox(height: 40),
             Expanded(
-              child: ListView.separated(
-                  itemBuilder: (context, index) => Container(
-                        height: 500,
-                        decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: [
-                              Image(
-                                image: NetworkImage(
-                                    articleData?[index].urlToImage ?? ''),
-                                height: 200,
-                                width: double.infinity,
+              child: isLoading
+                  ? ListView.separated(
+                      itemBuilder: (context, index) => Container(
+                            height: 500,
+                            decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ListView(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                children: [
+                                  Image(
+                                    image: NetworkImage(
+                                        articleData?[index].urlToImage ?? ''),
+                                    height: 200,
+                                    width: double.infinity,
+                                  ),
+                                  Text(
+                                    articleData?[index].title ?? ' ',
+                                    style: GoogleFonts.anekBangla(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: kWhite),
+                                  ),
+                                  Text(
+                                    articleData?[index].author ?? ' ',
+                                    style: GoogleFonts.anekBangla(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: kWhite),
+                                  ),
+                                  Text(
+                                    articleData?[index].description ?? ' ',
+                                    style: GoogleFonts.varela(
+                                        letterSpacing: 1,
+                                        fontWeight: FontWeight.bold,
+                                        color: kWhite),
+                                  ),
+                                  kSizedBox10,
+                                  Text(
+                                    "23/10/2004",
+                                    style: GoogleFonts.anekBangla(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: kWhite),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                articleData?[index].title ?? ' ',
-                                style: GoogleFonts.anekBangla(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: kWhite),
-                              ),
-                              Text(
-                                articleData?[index].author ?? ' ',
-                                style: GoogleFonts.anekBangla(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: kWhite),
-                              ),
-                              Text(
-                                articleData?[index].description ?? ' ',
-                                style: GoogleFonts.varela(
-                                    letterSpacing: 1,
-                                    fontWeight: FontWeight.bold,
-                                    color: kWhite),
-                              ),
-                              kSizedBox10,
-                              Text(
-                                "23/10/2004",
-                                style: GoogleFonts.anekBangla(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: kWhite),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                  separatorBuilder: (context, index) => kSizedBox10,
-                  itemCount: articleData?.length ?? 0),
+                      separatorBuilder: (context, index) => kSizedBox10,
+                      itemCount: articleData?.length ?? 0)
+                  : const Center(
+                      child: CircularProgressIndicator(color: kWhite)),
             ),
           ],
         ),
