@@ -19,7 +19,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   void initState() {
-    getArticlesFromApi();
+    // getArticlesFromApi();
     super.initState();
   }
 
@@ -29,7 +29,9 @@ class _HomeState extends State<Home> {
   Future<void> getArticlesFromApi() async {
     MainApiModel? response = await ApiServices().fetchUser();
     if (response != null) {
+      
       if (response.articles != null) {
+        
         setState(() {
           articleData = response.articles ?? [];
           errorMessage = response.message ?? 'hallo';
@@ -44,7 +46,6 @@ class _HomeState extends State<Home> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: kMainThem,
-              clipBehavior: Clip.antiAlias,
               content: Text(
                 "error Message",
                 style: TextStyle(color: kBlack),
